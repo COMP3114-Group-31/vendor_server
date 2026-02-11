@@ -1,4 +1,10 @@
-package com.mpu.vendor.service.impl;
+﻿package com.mpu.vendor.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 import com.mpu.vendor.dto.ProductCreateRequest;
 import com.mpu.vendor.dto.ProductStatusRequest;
@@ -8,11 +14,6 @@ import com.mpu.vendor.exception.BadRequestException;
 import com.mpu.vendor.exception.NotFoundException;
 import com.mpu.vendor.mapper.ProductMapper;
 import com.mpu.vendor.service.ProductService;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -25,139 +26,197 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> list(String search, String status) {
-        String cleanSearch = null;
-        String cleanStatus = null;
-
+        String searchValue = null;
         if (search != null) {
-            cleanSearch = search.trim();
-            if (cleanSearch.isEmpty()) {
-                cleanSearch = null;
+            String tmp = search.trim();
+            if (!tmp.isEmpty()) {
+                searchValue = tmp;
             }
         }
 
+        String statusValue = null;
         if (status != null) {
-            cleanStatus = status.trim().toLowerCase();
-            if (cleanStatus.isEmpty()) {
-                cleanStatus = null;
-            }
-            if (cleanStatus != null && !cleanStatus.equals("active") && !cleanStatus.equals("inactive")) {
-                throw new BadRequestException("Invalid request data", "status",
-                        "Status must be either 'active' or 'inactive'");
+            String tmp = status.trim().toLowerCase();
+            if (!tmp.isEmpty()) {
+                if (!tmp.equals("active") && !tmp.equals("inactive")) {
+                    throw new BadRequestException("Invalid request data", "status",
+                            "Status must be either 'active' or 'inactive'");
+                }
+                statusValue = tmp;
             }
         }
 
-        return productMapper.listProducts(cleanSearch, cleanStatus);
+        return productMapper.listProducts(searchValue, statusValue);
     }
 
     @Override
-    public Product get(Integer id) {
-        Product product = productMapper.findById(id);
-        if (product == null) {
+    public Product get(Long id) {
+        Product dbData = productMapper.findById(id);
+        if (dbData == null) {
             throw new NotFoundException("Product not found");
         }
-        return product;
+        return dbData;
     }
 
     @Override
-    public Integer create(ProductCreateRequest request) {
+    public Long create(ProductCreateRequest request) {
         if (request == null) {
             throw new BadRequestException("Invalid request data");
         }
-        if (!StringUtils.hasText(request.getName())) {
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new BadRequestException("Invalid request data", "name", "Name is required");
         }
-        if (!StringUtils.hasText(request.getNameCn())) {
+        if (request.getNameCn() == null || request.getNameCn().trim().isEmpty()) {
             throw new BadRequestException("Invalid request data", "name_cn", "Name_cn is required");
+        }
+        if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
+            throw new BadRequestException("Invalid request data", "description", "Description is required");
+        }
+        if (request.getDescriptionCn() == null || request.getDescriptionCn().trim().isEmpty()) {
+            throw new BadRequestException("Invalid request data", "description_cn", "Description_cn is required");
         }
         if (request.getPrice() == null || request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Invalid request data", "price", "Price must be a positive number");
         }
+        if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
+            String c = request.getCategory().trim().toLowerCase();
+            if (!isValidCategory(c)) {
+                throw new BadRequestException("Invalid request data", "category",
+                        "Category must be one of: phone, tablet, laptop, accessory, other");
+            }
+        }
 
-        Product product = new Product();
-        product.setName(request.getName().trim());
-        product.setNameCn(request.getNameCn().trim());
-        product.setPrice(request.getPrice());
-        product.setStatus("active");
-        product.setThumbnailUrl(null);
-        LocalDateTime now = LocalDateTime.now();
-        product.setCreatedAt(now);
-        product.setUpdatedAt(now);
+        Product saveData = new Product();
+        saveData.setName(request.getName().trim());
+        saveData.setNameCn(request.getNameCn().trim());
+        saveData.setDescription(request.getDescription().trim());
+        saveData.setDescriptionCn(request.getDescriptionCn().trim());
+        saveData.setPrice(request.getPrice());
 
-        int rows = productMapper.insert(product);
+        if (request.getThumbnailUrl() != null) {
+            saveData.setThumbnailUrl(request.getThumbnailUrl().trim());
+        }
+        if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
+            saveData.setCategory(request.getCategory().trim().toLowerCase());
+        }
+
+        int rows = productMapper.insert(saveData);
         if (rows != 1) {
             throw new RuntimeException("Failed to create product");
         }
-        return product.getId();
+
+        return saveData.getId();
     }
 
     @Override
-    public void update(Integer id, ProductUpdateRequest request) {
+    public void update(Long id, ProductUpdateRequest request) {
         if (request == null) {
             throw new BadRequestException("Invalid request data");
         }
-        Product existing = productMapper.findById(id);
-        if (existing == null) {
+
+        Product dbData = productMapper.findById(id);
+        if (dbData == null) {
             throw new NotFoundException("Product not found");
         }
+
         if (request.getName() != null && request.getName().trim().isEmpty()) {
             throw new BadRequestException("Invalid request data", "name", "Name is required");
         }
         if (request.getNameCn() != null && request.getNameCn().trim().isEmpty()) {
             throw new BadRequestException("Invalid request data", "name_cn", "Name_cn is required");
         }
+        if (request.getDescription() != null && request.getDescription().trim().isEmpty()) {
+            throw new BadRequestException("Invalid request data", "description", "Description is required");
+        }
+        if (request.getDescriptionCn() != null && request.getDescriptionCn().trim().isEmpty()) {
+            throw new BadRequestException("Invalid request data", "description_cn", "Description_cn is required");
+        }
         if (request.getPrice() != null && request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Invalid request data", "price", "Price must be a positive number");
         }
+        if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
+            String c = request.getCategory().trim().toLowerCase();
+            if (!isValidCategory(c)) {
+                throw new BadRequestException("Invalid request data", "category",
+                        "Category must be one of: phone, tablet, laptop, accessory, other");
+            }
+        }
 
-        Product toUpdate = new Product();
-        toUpdate.setId(id);
+        Product updateData = new Product();
+        updateData.setId(id);
 
         if (request.getName() != null) {
-            toUpdate.setName(request.getName().trim());
+            updateData.setName(request.getName().trim());
         }
         if (request.getNameCn() != null) {
-            toUpdate.setNameCn(request.getNameCn().trim());
+            updateData.setNameCn(request.getNameCn().trim());
+        }
+        if (request.getDescription() != null) {
+            updateData.setDescription(request.getDescription().trim());
+        }
+        if (request.getDescriptionCn() != null) {
+            updateData.setDescriptionCn(request.getDescriptionCn().trim());
+        }
+        if (request.getPrice() != null) {
+            updateData.setPrice(request.getPrice());
+        }
+        if (request.getThumbnailUrl() != null) {
+            updateData.setThumbnailUrl(request.getThumbnailUrl().trim());
+        }
+        if (request.getCategory() != null) {
+            updateData.setCategory(request.getCategory().trim().toLowerCase());
         }
 
-        toUpdate.setPrice(request.getPrice());
-        toUpdate.setUpdatedAt(LocalDateTime.now());
-
-        int rows = productMapper.update(toUpdate);
+        int rows = productMapper.update(updateData);
         if (rows != 1) {
             throw new RuntimeException("Failed to update product");
         }
     }
 
     @Override
-    public void updateStatus(Integer id, ProductStatusRequest request) {
-        if (request == null || !StringUtils.hasText(request.getStatus())) {
+    public void updateStatus(Long id, ProductStatusRequest request) {
+        if (request == null || request.getStatus() == null || request.getStatus().trim().isEmpty()) {
             throw new BadRequestException("Invalid request data", "status",
                     "Status must be either 'active' or 'inactive'");
         }
-        String status = request.getStatus().trim().toLowerCase();
-        if (!status.equals("active") && !status.equals("inactive")) {
+
+        String statusValue = request.getStatus().trim().toLowerCase();
+        if (!statusValue.equals("active") && !statusValue.equals("inactive")) {
             throw new BadRequestException("Invalid request data", "status",
                     "Status must be either 'active' or 'inactive'");
         }
-        Product existing = productMapper.findById(id);
-        if (existing == null) {
+
+        Product dbData = productMapper.findById(id);
+        if (dbData == null) {
             throw new NotFoundException("Product not found");
         }
-        int rows = productMapper.updateStatus(id, status, LocalDateTime.now());
+
+        int rows = productMapper.updateStatus(id, statusValue);
         if (rows != 1) {
             throw new RuntimeException("Failed to update product status");
         }
     }
 
     @Override
-    public void delete(Integer id) {
-        Product existing = productMapper.findById(id);
-        if (existing == null) {
+    public void delete(Long id) {
+        Product dbData = productMapper.findById(id);
+        if (dbData == null) {
             throw new NotFoundException("Product not found");
         }
+
         int rows = productMapper.deleteById(id);
         if (rows != 1) {
             throw new RuntimeException("Failed to delete product");
         }
+    }
+
+    private boolean isValidCategory(String c) {
+        List<String> arr = new ArrayList<>();
+        arr.add("phone");
+        arr.add("tablet");
+        arr.add("laptop");
+        arr.add("accessory");
+        arr.add("other");
+        return arr.contains(c);
     }
 }

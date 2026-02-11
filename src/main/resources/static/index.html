@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="responsive.css">
 </head>
 <body>
-    <!-- 侧边栏 -->
+    
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <i class="fas fa-warehouse"></i>
@@ -59,9 +59,9 @@
         </div>
     </div>
 
-    <!-- 主内容区 -->
+    
     <div class="main-content">
-        <!-- 顶部导航栏 -->
+        
         <div class="top-nav">
             <button class="mobile-menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
@@ -85,10 +85,10 @@
             </div>
         </div>
 
-        <!-- 仪表板标题 -->
+        
         <h1 class="dashboard-title">供应商仪表板</h1>
         
-        <!-- 数据卡片 -->
+        
         <div class="dashboard-cards">
             <div class="card">
                 <div class="card-header">
@@ -153,7 +153,7 @@
             </div>
         </div>
 
-        <!-- 最近订单 -->
+        
         <div class="section-title">
             <h2>最近订单</h2>
             <button class="btn btn-primary">
@@ -248,11 +248,11 @@
                         
                         <div style="flex: 1; min-width: 250px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">
-                                SKU编码 <span style="color: #e74c3c;">*</span>
+                                中文名称
                             </label>
-                            <input type="text" id="productSku" 
+                            <input type="text" id="productNameCn" 
                                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                                   placeholder="PROD-001" required>
+                                   placeholder="输入中文名称">
                         </div>
                     </div>
                     
@@ -268,23 +268,15 @@
                         
                         <div style="flex: 1; min-width: 200px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">
-                                库存数量
-                            </label>
-                            <input type="number" id="productStock" 
-                                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"
-                                   min="0" value="0">
-                        </div>
-                        
-                        <div style="flex: 1; min-width: 200px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">
                                 分类
                             </label>
                             <select id="productCategory" 
                                     style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                                 <option value="">选择分类</option>
-                                <option value="electronics">电子产品</option>
-                                <option value="clothing">服装</option>
-                                <option value="accessories">配件</option>
+                                <option value="phone">手机</option>
+                                <option value="tablet">平板</option>
+                                <option value="laptop">笔记本电脑</option>
+                                <option value="accessory">配件</option>
                                 <option value="other">其他</option>
                             </select>
                         </div>
@@ -292,11 +284,21 @@
                     
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">
-                            产品描述
+                            产品描述 <span style="color: #e74c3c;">*</span>
                         </label>
                         <textarea id="productDescription" 
                                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 80px;"
-                                  placeholder="输入产品描述..."></textarea>
+                                  placeholder="输入产品描述..." required></textarea>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">
+                            中文描述 <span style="color: #e74c3c;">*</span>
+                        </label>
+                        <textarea id="productDescriptionCn" 
+                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 80px;"
+                                  placeholder="输入中文描述..."
+                                  required></textarea>
                     </div>
                     
                     <div style="display: flex; justify-content: space-between; padding-top: 15px; border-top: 1px solid #eee;">
@@ -305,10 +307,14 @@
                                     style="background: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
                                 重置
                             </button>
+                            <button type="button" class="btn" id="cancelEditBtn"
+                                    style="display: none; margin-left: 8px; background: #7f8c8d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                                取消编辑
+                            </button>
                         </div>
                         
                         <div>
-                            <button type="submit" class="btn" 
+                            <button type="submit" class="btn" id="productSubmitBtn"
                                     style="background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
                                 <i class="fas fa-save"></i> 创建产品
                             </button>
@@ -322,7 +328,37 @@
             </div>
         </div>
 
-        <!-- 库存预警 -->
+        <div class="section-title" style="margin-top: 30px;">
+            <h2>产品列表</h2>
+            <button class="btn btn-primary" id="refreshProductListBtn">
+                <i class="fas fa-rotate-right"></i> 刷新
+            </button>
+        </div>
+        
+        <div class="table-container">
+            <table class="order-table" id="productTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>名称</th>
+                        <th>中文名称</th>
+                        <th>价格</th>
+                        <th>分类</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #7f8c8d; padding: 20px;">
+                            正在加载产品...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
         <div class="section-title">
             <h2>库存预警</h2>
         </div>
@@ -387,3 +423,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
+

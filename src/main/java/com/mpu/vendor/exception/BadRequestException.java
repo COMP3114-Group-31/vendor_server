@@ -1,9 +1,10 @@
-package com.mpu.vendor.exception;
+﻿package com.mpu.vendor.exception;
 
 import java.util.Collections;
 import java.util.Map;
 
 public class BadRequestException extends RuntimeException {
+
     private final Map<String, String> details;
 
     public BadRequestException(String message) {

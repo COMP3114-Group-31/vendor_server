@@ -1,11 +1,8 @@
-/* =============================================
-   供应商管理系统 - 主样式文件
-   Vendor Portal - Main Stylesheet
-   ============================================= */
+﻿
 
-/* ========== CSS变量/自定义属性 ========== */
+
 :root {
-    /* 颜色系统 */
+    
     --primary-color: #2c3e50;
     --secondary-color: #3498db;
     --accent-color: #e74c3c;
@@ -17,12 +14,12 @@
     --gray-medium: #bdc3c7;
     --gray-dark: #7f8c8d;
     
-    /* 布局尺寸 */
+    
     --sidebar-width: 250px;
     --header-height: 70px;
     --container-padding: 20px;
     
-    /* 样式变量 */
+    
     --border-radius: 8px;
     --border-radius-sm: 4px;
     --border-radius-lg: 12px;
@@ -30,17 +27,17 @@
     --box-shadow-lg: 0 5px 20px rgba(0, 0, 0, 0.15);
     --transition: all 0.3s ease;
     
-    /* 字体大小 */
-    --font-size-xs: 0.75rem;   /* 12px */
-    --font-size-sm: 0.875rem;  /* 14px */
-    --font-size-base: 1rem;    /* 16px */
-    --font-size-lg: 1.125rem;  /* 18px */
-    --font-size-xl: 1.25rem;   /* 20px */
-    --font-size-2xl: 1.5rem;   /* 24px */
-    --font-size-3xl: 2rem;     /* 32px */
+    
+    --font-size-xs: 0.75rem;   
+    --font-size-sm: 0.875rem;  
+    --font-size-base: 1rem;    
+    --font-size-lg: 1.125rem;  
+    --font-size-xl: 1.25rem;   
+    --font-size-2xl: 1.5rem;   
+    --font-size-3xl: 2rem;     
 }
 
-/* ========== 重置和基础样式 ========== */
+
 * {
     margin: 0;
     padding: 0;
@@ -60,7 +57,7 @@ body {
     min-height: 100vh;
 }
 
-/* ========== 侧边栏样式 ========== */
+
 .sidebar {
     width: var(--sidebar-width);
     background: linear-gradient(180deg, var(--primary-color) 0%, #5b7b99 100%);
@@ -141,7 +138,7 @@ body {
     font-weight: 500;
 }
 
-/* ========== 主内容区样式 ========== */
+
 .main-content {
     flex: 1;
     margin-left: var(--sidebar-width);
@@ -150,7 +147,7 @@ body {
     transition: var(--transition);
 }
 
-/* ========== 顶部导航栏样式 ========== */
+
 .top-nav {
     background: white;
     border-radius: var(--border-radius);
@@ -276,7 +273,7 @@ body {
     color: var(--gray-dark);
 }
 
-/* ========== 仪表板样式 ========== */
+
 .dashboard-title {
     margin-bottom: 1.5rem;
     color: var(--primary-color);
@@ -378,7 +375,7 @@ body {
     color: var(--accent-color);
 }
 
-/* ========== 区域标题和按钮样式 ========== */
+
 .section-title {
     margin: 2rem 0 1rem 0;
     color: var(--primary-color);
@@ -445,7 +442,7 @@ body {
     background-color: rgba(52, 152, 219, 0.1);
 }
 
-/* ========== 表格样式 ========== */
+
 .table-container {
     background: white;
     border-radius: var(--border-radius);
@@ -487,7 +484,7 @@ body {
     border-bottom: none;
 }
 
-/* ========== 状态徽章样式 ========== */
+
 .status-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 2rem;
@@ -522,7 +519,7 @@ body {
     border: 1px solid #c3e6cb;
 }
 
-/* ========== 库存预警样式 ========== */
+
 .inventory-alert {
     background: white;
     border-radius: var(--border-radius);
@@ -589,7 +586,7 @@ body {
 .stock-fill {
     height: 100%;
     border-radius: 3px;
-    width: 12%; /* 这个值应该由JavaScript动态设置 */
+    width: 12%; 
 }
 
 .stock-low {
@@ -604,7 +601,7 @@ body {
     background: linear-gradient(90deg, var(--success-color), #1dd1a1);
 }
 
-/* ========== 工具类 ========== */
+
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-left { text-align: left; }

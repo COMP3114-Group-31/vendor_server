@@ -1,4 +1,4 @@
-package com.mpu;
+﻿package com.mpu;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -11,5 +11,5 @@ public class IspSpringApplication {
     public static void main(String[] args) {
         SpringApplication.run(IspSpringApplication.class, args);
     }
-
 }
+

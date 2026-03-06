@@ -1,4 +1,4 @@
-﻿package com.mpu.vendor.mapper;
+package com.mpu.vendor.mapper;
 
 import java.util.List;
 
@@ -80,4 +80,7 @@ public interface ProductMapper {
 
     @Delete("DELETE FROM products WHERE id = #{id}")
     int deleteById(@Param("id") Long id);
+
+    @Update("UPDATE products SET thumbnail_url = #{thumbnailUrl} WHERE id = #{id}")
+    int updateThumbnailUrl(@Param("id") Long id, @Param("thumbnailUrl") String thumbnailUrl);
 }

@@ -1,4 +1,4 @@
-﻿package com.mpu.vendor.web;
+package com.mpu.vendor.web;
 
 import java.util.Collections;
 
@@ -8,6 +8,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import com.mpu.vendor.exception.BadRequestException;
 import com.mpu.vendor.exception.NotFoundException;
@@ -48,9 +51,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPart(MissingServletRequestPartException ex) {
+        ErrorResponse body = new ErrorResponse("Invalid request data",
+                Collections.singletonMap("files", "At least one image file is required"));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler({MultipartException.class, MaxUploadSizeExceededException.class})
+    public ResponseEntity<ErrorResponse> handleMultipart(Exception ex) {
+        ErrorResponse body = new ErrorResponse("Invalid request data",
+                Collections.singletonMap("files", "Invalid upload request or file size exceeds limit"));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOther(Exception ex) {
-        ErrorResponse body = new ErrorResponse("Internal server error", Collections.emptyMap());
+        String reason = ex.getMessage();
+        if (reason == null || reason.isBlank()) {
+            reason = ex.getClass().getSimpleName();
+        }
+        ErrorResponse body = new ErrorResponse("Internal server error", Collections.singletonMap("reason", reason));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 }

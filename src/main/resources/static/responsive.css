@@ -1,13 +1,16 @@
-﻿
+/* =============================================
+   供应商管理系统 - 响应式样式文件
+   Vendor Portal - Responsive Stylesheet
+   ============================================= */
 
-
+/* ========== 大屏幕 (≥1200px) ========== */
 @media (min-width: 1200px) {
     .dashboard-cards {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
-
+/* ========== 中等屏幕 (992px - 1199px) ========== */
 @media (max-width: 1199px) {
     .dashboard-cards {
         grid-template-columns: repeat(2, 1fr);
@@ -22,7 +25,7 @@
     }
 }
 
-
+/* ========== 平板 (768px - 991px) ========== */
 @media (max-width: 991px) {
     .sidebar {
         transform: translateX(-100%);
@@ -62,7 +65,7 @@
     }
 }
 
-
+/* ========== 手机 (576px - 767px) ========== */
 @media (max-width: 767px) {
     .dashboard-cards {
         grid-template-columns: 1fr;
@@ -104,7 +107,7 @@
     }
 }
 
-
+/* ========== 小手机 (≤575px) ========== */
 @media (max-width: 575px) {
     :root {
         --container-padding: 1rem;
@@ -146,7 +149,7 @@
     }
 }
 
-
+/* ========== 打印样式 ========== */
 @media print {
     .sidebar,
     .top-nav,
@@ -183,4 +186,3 @@
         margin-bottom: 1rem;
     }
 }
-

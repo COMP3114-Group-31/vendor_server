@@ -1,4 +1,4 @@
-﻿package com.mpu.vendor.exception;
+package com.mpu.vendor.exception;
 
 import java.util.Collections;
 import java.util.Map;

@@ -1,4 +1,4 @@
-﻿package com.mpu;
+package com.mpu;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

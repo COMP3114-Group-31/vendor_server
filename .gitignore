@@ -35,3 +35,6 @@ build/
 ### Crash Logs ###
 hs_err_pid*.log
 replay_pid*.log
+
+### macOS ###
+.DS_Store

@@ -6,7 +6,16 @@
     url: jdbc:mysql://localhost:3306/isp
     username: myisp_dev
     password: wjhwjd123
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 100MB
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+aliyun:
+  oss:
+    endpoint: https://oss-cn-beijing.aliyuncs.com
+    bucketName: mpu-isp
+    region: cn-beijing

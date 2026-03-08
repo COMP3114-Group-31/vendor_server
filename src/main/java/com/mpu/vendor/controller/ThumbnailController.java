@@ -22,7 +22,7 @@ import com.mpu.vendor.entity.ProductMedia;
 import com.mpu.vendor.service.ThumbnailService;
 
 @RestController
-@RequestMapping("/products/{productId}/thumbnails")
+@RequestMapping({"/products/{productId}/images", "/products/{productId}/thumbnails"})
 @CrossOrigin(origins = "*")
 public class ThumbnailController {
 
@@ -32,6 +32,19 @@ public class ThumbnailController {
         this.thumbnailService = thumbnailService;
     }
 
+    @PostMapping("/cover")
+    public ResponseEntity<Map<String, Object>> uploadCover(@PathVariable Long productId,
+                                                           @RequestParam("file") MultipartFile file) {
+        String coverImageUrl = thumbnailService.uploadCover(productId, file);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("message", "Cover image uploaded");
+        map.put("product_id", productId);
+        map.put("cover_image_url", coverImageUrl);
+        map.put("main_thumbnail_url", coverImageUrl);
+        return ResponseEntity.status(HttpStatus.CREATED).body(map);
+    }
+
     @PostMapping
     public ResponseEntity<Map<String, Object>> upload(@PathVariable Long productId,
                                                        @RequestParam("files") MultipartFile[] files,
@@ -39,10 +52,13 @@ public class ThumbnailController {
         List<ProductMedia> list = thumbnailService.uploadThumbnails(productId, files, setFirstAsMain);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("message", "Thumbnails uploaded");
+        map.put("message", "Images uploaded");
         map.put("product_id", productId);
-        map.put("main_thumbnail_url", thumbnailService.getMainThumbnail(productId));
+        String coverImageUrl = thumbnailService.getMainThumbnail(productId);
+        map.put("cover_image_url", coverImageUrl);
+        map.put("main_thumbnail_url", coverImageUrl);
         map.put("items", toItems(list));
+        map.put("detail_images", toItems(list));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(map);
     }
@@ -53,8 +69,11 @@ public class ThumbnailController {
 
         Map<String, Object> map = new HashMap<>();
         map.put("product_id", productId);
-        map.put("main_thumbnail_url", thumbnailService.getMainThumbnail(productId));
+        String coverImageUrl = thumbnailService.getMainThumbnail(productId);
+        map.put("cover_image_url", coverImageUrl);
+        map.put("main_thumbnail_url", coverImageUrl);
         map.put("items", toItems(list));
+        map.put("detail_images", toItems(list));
         return map;
     }
 
@@ -64,8 +83,9 @@ public class ThumbnailController {
         String url = thumbnailService.setMainThumbnail(productId, mediaId);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("message", "Main thumbnail updated");
+        map.put("message", "Cover image updated");
         map.put("product_id", productId);
+        map.put("cover_image_url", url);
         map.put("main_thumbnail_url", url);
         return map;
     }
@@ -76,8 +96,9 @@ public class ThumbnailController {
         String mainUrl = thumbnailService.deleteThumbnail(productId, mediaId);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("message", "Thumbnail deleted");
+        map.put("message", "Image deleted");
         map.put("product_id", productId);
+        map.put("cover_image_url", mainUrl);
         map.put("main_thumbnail_url", mainUrl);
         return map;
     }

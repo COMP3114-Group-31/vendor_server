@@ -23,6 +23,8 @@ import com.mpu.vendor.dto.ProductResponse;
 import com.mpu.vendor.dto.ProductStatusRequest;
 import com.mpu.vendor.dto.ProductUpdateRequest;
 import com.mpu.vendor.entity.Product;
+import com.mpu.vendor.entity.ProductMedia;
+import com.mpu.vendor.mapper.ProductMediaMapper;
 import com.mpu.vendor.service.ProductService;
 
 @RestController
@@ -31,9 +33,11 @@ import com.mpu.vendor.service.ProductService;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductMediaMapper productMediaMapper;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductMediaMapper productMediaMapper) {
         this.productService = productService;
+        this.productMediaMapper = productMediaMapper;
     }
 
     @GetMapping
@@ -50,7 +54,7 @@ public class ProductController {
             one.setDescription(item.getDescription());
             one.setDescriptionCn(item.getDescriptionCn());
             one.setPrice(item.getPrice());
-            one.setThumbnailUrl(item.getThumbnailUrl());
+            one.setCoverImageUrl(item.getCoverImageUrl());
             one.setCategory(item.getCategory());
             one.setStatus(item.getStatus());
             one.setCreatedAt(item.getCreatedAt());
@@ -78,6 +82,7 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ProductResponse getProduct(@PathVariable Long productId) {
         Product item = productService.get(productId);
+        List<Map<String, Object>> mediaItems = toMediaItems(productMediaMapper.listByProductId(item.getId()), item.getCoverImageUrl());
 
         ProductResponse one = new ProductResponse();
         one.setProductId(item.getId());
@@ -86,7 +91,9 @@ public class ProductController {
         one.setDescription(item.getDescription());
         one.setDescriptionCn(item.getDescriptionCn());
         one.setPrice(item.getPrice());
-        one.setThumbnailUrl(item.getThumbnailUrl());
+        one.setCoverImageUrl(item.getCoverImageUrl());
+        one.setMedia(mediaItems);
+        one.setDetailImages(mediaItems);
         one.setCategory(item.getCategory());
         one.setStatus(item.getStatus());
         one.setCreatedAt(item.getCreatedAt());
@@ -121,6 +128,20 @@ public class ProductController {
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Product deleted");
         return map;
+    }
+
+    private List<Map<String, Object>> toMediaItems(List<ProductMedia> list, String coverImageUrl) {
+        List<Map<String, Object>> items = new ArrayList<>();
+        for (ProductMedia item : list) {
+            Map<String, Object> one = new HashMap<>();
+            one.put("media_id", item.getMediaId());
+            one.put("url", item.getUrl());
+            one.put("media_type", item.getMediaType());
+            one.put("is_cover", item.getUrl() != null && item.getUrl().equals(coverImageUrl));
+            one.put("created_at", item.getCreatedAt());
+            items.add(one);
+        }
+        return items;
     }
 
 }

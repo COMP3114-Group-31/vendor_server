@@ -2,6 +2,7 @@ package com.mpu.vendor.dto;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -20,8 +21,9 @@ public class ProductUpdateRequest {
 
     private BigDecimal price;
 
-    @JsonProperty("thumbnail_url")
-    private String thumbnailUrl;
+    @JsonProperty("cover_image_url")
+    @JsonAlias("thumbnail_url")
+    private String coverImageUrl;
 
     private String category;
 
@@ -65,12 +67,12 @@ public class ProductUpdateRequest {
         this.price = price;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public String getCoverImageUrl() {
+        return coverImageUrl;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 
     public String getCategory() {

@@ -27,7 +27,15 @@ public class AliyunOSSOperator {
         this.aliyunOSSProperties = aliyunOSSProperties;
     }
 
+    public String uploadProductCover(byte[] content, String originalFilename, Long productId) throws Exception {
+        return upload(content, originalFilename, "products/" + productId + "/cover/");
+    }
+
     public String uploadProductThumbnail(byte[] content, String originalFilename, Long productId) throws Exception {
+        return upload(content, originalFilename, "products/" + productId + "/images/");
+    }
+
+    private String upload(byte[] content, String originalFilename, String objectPrefix) throws Exception {
         String endpoint = aliyunOSSProperties.getEndpoint();
         String bucketName = aliyunOSSProperties.getBucketName();
         String region = aliyunOSSProperties.getRegion();
@@ -38,7 +46,7 @@ public class AliyunOSSOperator {
         String ext = originalFilename.substring(originalFilename.lastIndexOf('.')).toLowerCase();
         String dir = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM"));
         String fileName = UUID.randomUUID() + ext;
-        String objectName = "products/" + productId + "/thumbnails/" + dir + "/" + fileName;
+        String objectName = objectPrefix + dir + "/" + fileName;
 
         ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
         clientBuilderConfiguration.setSignatureVersion(SignVersion.V4);

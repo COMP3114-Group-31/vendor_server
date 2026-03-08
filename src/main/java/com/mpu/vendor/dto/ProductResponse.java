@@ -2,6 +2,8 @@ package com.mpu.vendor.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,8 +28,13 @@ public class ProductResponse {
 
     private BigDecimal price;
 
-    @JsonProperty("thumbnail_url")
-    private String thumbnailUrl;
+    @JsonProperty("cover_image_url")
+    private String coverImageUrl;
+
+    private List<Map<String, Object>> media;
+
+    @JsonProperty("detail_images")
+    private List<Map<String, Object>> detailImages;
 
     private String category;
 
@@ -87,12 +94,33 @@ public class ProductResponse {
         this.price = price;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public String getCoverImageUrl() {
+        return coverImageUrl;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public List<Map<String, Object>> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<Map<String, Object>> media) {
+        this.media = media;
+    }
+
+    public List<Map<String, Object>> getDetailImages() {
+        return detailImages;
+    }
+
+    public void setDetailImages(List<Map<String, Object>> detailImages) {
+        this.detailImages = detailImages;
+    }
+
+    @JsonProperty("thumbnail_url")
+    public String getThumbnailUrl() {
+        return coverImageUrl;
     }
 
     public String getCategory() {

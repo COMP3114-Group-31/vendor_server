@@ -8,6 +8,8 @@ import com.mpu.vendor.entity.ProductMedia;
 
 public interface ThumbnailService {
 
+    String uploadCover(Long productId, MultipartFile file);
+
     List<ProductMedia> uploadThumbnails(Long productId, MultipartFile[] files, boolean setFirstAsMain);
 
     List<ProductMedia> listThumbnails(Long productId);

@@ -93,8 +93,8 @@ public class ProductServiceImpl implements ProductService {
         saveData.setDescriptionCn(request.getDescriptionCn().trim());
         saveData.setPrice(request.getPrice());
 
-        if (request.getThumbnailUrl() != null) {
-            saveData.setThumbnailUrl(request.getThumbnailUrl().trim());
+        if (request.getCoverImageUrl() != null) {
+            saveData.setCoverImageUrl(request.getCoverImageUrl().trim());
         }
         if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
             saveData.setCategory(request.getCategory().trim().toLowerCase());
@@ -160,8 +160,8 @@ public class ProductServiceImpl implements ProductService {
         if (request.getPrice() != null) {
             updateData.setPrice(request.getPrice());
         }
-        if (request.getThumbnailUrl() != null) {
-            updateData.setThumbnailUrl(request.getThumbnailUrl().trim());
+        if (request.getCoverImageUrl() != null) {
+            updateData.setCoverImageUrl(request.getCoverImageUrl().trim());
         }
         if (request.getCategory() != null) {
             updateData.setCategory(request.getCategory().trim().toLowerCase());

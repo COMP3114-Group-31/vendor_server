@@ -19,7 +19,7 @@ public class Product {
 
     private BigDecimal price;
 
-    private String thumbnailUrl;
+    private String coverImageUrl;
 
     private String category;
 
@@ -77,12 +77,12 @@ public class Product {
         this.price = price;
     }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
+    public String getCoverImageUrl() {
+        return coverImageUrl;
     }
 
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
     }
 
     public String getCategory() {

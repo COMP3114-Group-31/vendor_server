@@ -16,6 +16,7 @@ const API_ENDPOINTS = {
 };
 
 let currentEditingProductId = null;
+let currentEditingProductStatus = 'active';
 let currentEditingOrderId = null; 
 
 let currentExistingCoverUrl = '';
@@ -458,6 +459,7 @@ async function uploadDetailImagesByBackend(productId, files) {
 async function handleProductFormSubmit(e) {
     e.preventDefault();
     const name = (document.getElementById('productName')?.value || '').trim();
+    const selectedStatus = (document.getElementById('productStatus')?.value || 'active').trim().toLowerCase();
     if (!name) return showNotification('产品名称是必填项', 'error');
 
     const submitBtn = document.querySelector('#productForm button[type="submit"]');
@@ -491,11 +493,18 @@ async function handleProductFormSubmit(e) {
         const responseData = await response.json().catch(() => ({}));
         const productId = isEdit ? currentEditingProductId : responseData?.product_id;
 
+        if (!productId) {
+            throw new Error('产品已保存，但未获取到 product_id');
+        }
+
+        if (!isEdit || selectedStatus !== currentEditingProductStatus) {
+            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-toggle-on"></i> 正在更新状态...';
+            await updateProductStatusByBackend(productId, selectedStatus);
+        }
+
         if (currentNewCoverFile?.file && productId) {
             if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-image"></i> 正在上传封面...';
             await uploadCoverByBackend(productId, currentNewCoverFile.file);
-        } else if (currentNewCoverFile?.file && !productId) {
-            throw new Error('产品已保存，但未获取到 product_id，无法上传封面图');
         }
 
         const filesToUpload = currentNewFiles.map(item => item.file);
@@ -503,8 +512,6 @@ async function handleProductFormSubmit(e) {
         if (filesToUpload.length > 0 && productId) {
             if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-images"></i> 正在上传详情图...';
             await uploadDetailImagesByBackend(productId, filesToUpload);
-        } else if (filesToUpload.length > 0 && !productId) {
-            throw new Error('产品已保存，但未获取到 product_id，无法上传详情图');
         }
 
         showNotification(isEdit ? '产品更新成功' : '产品创建成功', 'success');
@@ -518,8 +525,20 @@ async function handleProductFormSubmit(e) {
     }
 }
 
+async function updateProductStatusByBackend(productId, status) {
+    const response = await fetch(API_ENDPOINTS.UPDATE_STATUS(productId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+    });
+    const data = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(getErrorMessageFromResponse(data, '产品状态更新失败'));
+    return data;
+}
+
 function setFormModeForCreate() {
     currentEditingProductId = null;
+    currentEditingProductStatus = 'active';
     currentExistingCoverUrl = '';
     currentExistingMedia = []; 
 
@@ -534,6 +553,8 @@ function setFormModeForCreate() {
     currentNewFiles = [];      
 
     document.getElementById('productForm')?.reset();
+    const statusSelect = document.getElementById('productStatus');
+    if (statusSelect) statusSelect.value = 'active';
     
     const submitBtn = document.getElementById('productSubmitBtn');
     if (submitBtn) { submitBtn.innerHTML = '<i class="fas fa-save"></i> 创建产品'; submitBtn.style.background = '#27ae60'; }
@@ -554,10 +575,12 @@ function setFormModeForEdit(product) {
     setVal('productNameCn', product.name_cn);
     setVal('productPrice', product.price ?? 0);
     setVal('productCategory', product.category ?? '');
+    setVal('productStatus', (product.status || 'active').toLowerCase());
     setVal('productDescription', product.description ?? '');
     setVal('productDescriptionCn', product.description_cn ?? '');
+    currentEditingProductStatus = (product.status || 'active').toLowerCase();
 
-    currentExistingCoverUrl = product.cover_image_url || product.thumbnail_url || '';
+    currentExistingCoverUrl = product.thumbnail_url || product.cover_image_url || '';
     if (currentNewCoverFile?.url) {
         URL.revokeObjectURL(currentNewCoverFile.url);
     }
@@ -618,7 +641,7 @@ function renderProductTable(products) {
 
     tbody.innerHTML = products.map((p) => {
         const id = p.product_id || p.id || '';
-        const coverUrl = p.cover_image_url || p.thumbnail_url || '';
+        const coverUrl = p.thumbnail_url || p.cover_image_url || '';
         const imageHtml = coverUrl ? `
             <div style="position: relative; width: 52px; height: 52px; display: inline-block;">
                 <img src="${coverUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;">
@@ -903,6 +926,6 @@ function escapeHtml(value) {
 
 function formatPrice(value) {
     const n = Number(value);
-    if (!Number.isFinite(n)) return '¥0.00';
-    return `¥${n.toFixed(2)}`;
+    if (!Number.isFinite(n)) return '$0.00';
+    return `$${n.toFixed(2)}`;
 }

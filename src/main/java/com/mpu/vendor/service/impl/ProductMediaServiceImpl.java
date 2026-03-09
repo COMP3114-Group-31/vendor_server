@@ -13,19 +13,19 @@ import com.mpu.vendor.exception.BadRequestException;
 import com.mpu.vendor.exception.NotFoundException;
 import com.mpu.vendor.mapper.ProductMapper;
 import com.mpu.vendor.mapper.ProductMediaMapper;
-import com.mpu.vendor.service.ThumbnailService;
+import com.mpu.vendor.service.ProductMediaService;
 import com.mpu.vendor.utils.AliyunOSSOperator;
 
 @Service
-public class ThumbnailServiceImpl implements ThumbnailService {
+public class ProductMediaServiceImpl implements ProductMediaService {
 
     private final ProductMapper productMapper;
     private final ProductMediaMapper productMediaMapper;
     private final AliyunOSSOperator aliyunOSSOperator;
 
-    public ThumbnailServiceImpl(ProductMapper productMapper,
-                                ProductMediaMapper productMediaMapper,
-                                AliyunOSSOperator aliyunOSSOperator) {
+    public ProductMediaServiceImpl(ProductMapper productMapper,
+                                   ProductMediaMapper productMediaMapper,
+                                   AliyunOSSOperator aliyunOSSOperator) {
         this.productMapper = productMapper;
         this.productMediaMapper = productMediaMapper;
         this.aliyunOSSOperator = aliyunOSSOperator;
@@ -33,7 +33,7 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String uploadCover(Long productId, MultipartFile file) {
+    public String uploadThumbnail(Long productId, MultipartFile file) {
         Product product = productMapper.findById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
@@ -59,15 +59,13 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public List<ProductMedia> uploadThumbnails(Long productId, MultipartFile[] files, boolean setFirstAsMain) {
+    public List<ProductMedia> uploadMedia(Long productId, MultipartFile[] files, boolean setFirstAsMain) {
         Product product = productMapper.findById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
         }
 
         checkUploadFiles(files);
-
-        String firstUploadedUrl = null;
 
         for (MultipartFile file : files) {
             try {
@@ -81,11 +79,7 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 
                 int insertRows = productMediaMapper.insert(media);
                 if (insertRows != 1) {
-                    throw new RuntimeException("Failed to save thumbnail record");
-                }
-
-                if (firstUploadedUrl == null) {
-                    firstUploadedUrl = url;
+                    throw new RuntimeException("Failed to save product media record");
                 }
             } catch (BadRequestException ex) {
                 throw ex;
@@ -94,19 +88,15 @@ public class ThumbnailServiceImpl implements ThumbnailService {
                 if (msg == null || msg.isBlank()) {
                     msg = ex.getClass().getSimpleName();
                 }
-                throw new RuntimeException("Failed to upload thumbnail: " + msg, ex);
+                throw new RuntimeException("Failed to upload product media: " + msg, ex);
             }
         }
 
-        if (setFirstAsMain && firstUploadedUrl != null) {
-            updateMainThumbnail(productId, firstUploadedUrl);
-        }
-
         return productMediaMapper.listByProductId(productId);
     }
 
     @Override
-    public List<ProductMedia> listThumbnails(Long productId) {
+    public List<ProductMedia> listMedia(Long productId) {
         Product product = productMapper.findById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
@@ -115,17 +105,31 @@ public class ThumbnailServiceImpl implements ThumbnailService {
     }
 
     @Override
-    public String getMainThumbnail(Long productId) {
+    public String getThumbnail(Long productId) {
         Product product = productMapper.findById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
         }
-        return product.getCoverImageUrl();
+        return product.getThumbnailUrl();
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String setMainThumbnail(Long productId, Long mediaId) {
+    public String setThumbnailFromMedia(Long productId, Long mediaId) {
+        ProductMedia media = productMediaMapper.findByIdAndProductId(mediaId, productId);
+        if (media == null) {
+            throw new NotFoundException("Product media not found");
+        }
+
+        throw new BadRequestException(
+                "Invalid request data",
+                "media_id",
+                "Detail images are stored in product_media. Use /products/{productId}/images/cover to update thumbnail_url");
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public String deleteMedia(Long productId, Long mediaId) {
         Product product = productMapper.findById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
@@ -133,44 +137,19 @@ public class ThumbnailServiceImpl implements ThumbnailService {
 
         ProductMedia media = productMediaMapper.findByIdAndProductId(mediaId, productId);
         if (media == null) {
-            throw new NotFoundException("Thumbnail not found");
-        }
-
-        updateMainThumbnail(productId, media.getUrl());
-        return media.getUrl();
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public String deleteThumbnail(Long productId, Long mediaId) {
-        Product product = productMapper.findById(productId);
-        if (product == null) {
-            throw new NotFoundException("Product not found");
-        }
-
-        ProductMedia media = productMediaMapper.findByIdAndProductId(mediaId, productId);
-        if (media == null) {
-            throw new NotFoundException("Thumbnail not found");
+            throw new NotFoundException("Product media not found");
         }
 
         int rows = productMediaMapper.deleteByIdAndProductId(mediaId, productId);
         if (rows != 1) {
-            throw new RuntimeException("Failed to delete thumbnail");
+            throw new RuntimeException("Failed to delete product media");
         }
 
-        String currentMainUrl = product.getCoverImageUrl();
-        if (currentMainUrl != null && currentMainUrl.equals(media.getUrl())) {
-            ProductMedia first = productMediaMapper.findFirstByProductId(productId);
-            String newMainUrl = first == null ? null : first.getUrl();
-            updateMainThumbnail(productId, newMainUrl);
-            return newMainUrl;
-        }
-
-        return currentMainUrl;
+        return product.getThumbnailUrl();
     }
 
     private void updateMainThumbnail(Long productId, String url) {
-        int rows = productMapper.updateCoverImageUrl(productId, url);
+        int rows = productMapper.updateThumbnailUrl(productId, url);
         if (rows != 1) {
             throw new RuntimeException("Failed to update cover image");
         }

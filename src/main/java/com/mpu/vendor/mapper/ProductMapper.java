@@ -19,7 +19,7 @@ public interface ProductMapper {
 
     @Select({
             "<script>",
-            "SELECT id, name, name_cn, description, description_cn, price, cover_image_url, category, status, created_at, updated_at",
+            "SELECT id, name, name_cn, description, description_cn, price, thumbnail_url, category, status, created_at, updated_at",
             "FROM products",
             "<where>",
             "  <if test=\"search != null and search != ''\">",
@@ -36,25 +36,25 @@ public interface ProductMapper {
     @Results({
             @Result(column = "name_cn", property = "nameCn"),
             @Result(column = "description_cn", property = "descriptionCn"),
-            @Result(column = "cover_image_url", property = "coverImageUrl"),
+            @Result(column = "thumbnail_url", property = "thumbnailUrl"),
             @Result(column = "created_at", property = "createdAt"),
             @Result(column = "updated_at", property = "updatedAt")
     })
     List<Product> listProducts(@Param("search") String search, @Param("status") String status);
 
-    @Select("SELECT id, name, name_cn, description, description_cn, price, cover_image_url, category, status, created_at, updated_at "
+    @Select("SELECT id, name, name_cn, description, description_cn, price, thumbnail_url, category, status, created_at, updated_at "
             + "FROM products WHERE id = #{id}")
     @Results({
             @Result(column = "name_cn", property = "nameCn"),
             @Result(column = "description_cn", property = "descriptionCn"),
-            @Result(column = "cover_image_url", property = "coverImageUrl"),
+            @Result(column = "thumbnail_url", property = "thumbnailUrl"),
             @Result(column = "created_at", property = "createdAt"),
             @Result(column = "updated_at", property = "updatedAt")
     })
     Product findById(@Param("id") Long id);
 
-    @Insert("INSERT INTO products (name, name_cn, description, description_cn, price, cover_image_url, category) "
-            + "VALUES (#{name}, #{nameCn}, #{description}, #{descriptionCn}, #{price}, #{coverImageUrl}, #{category})")
+    @Insert("INSERT INTO products (name, name_cn, description, description_cn, price, thumbnail_url, category) "
+            + "VALUES (#{name}, #{nameCn}, #{description}, #{descriptionCn}, #{price}, #{thumbnailUrl}, #{category})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Product product);
 
@@ -67,7 +67,7 @@ public interface ProductMapper {
             "  <if test='description != null'>description = #{description},</if>",
             "  <if test='descriptionCn != null'>description_cn = #{descriptionCn},</if>",
             "  <if test='price != null'>price = #{price},</if>",
-            "  <if test='coverImageUrl != null'>cover_image_url = #{coverImageUrl},</if>",
+            "  <if test='thumbnailUrl != null'>thumbnail_url = #{thumbnailUrl},</if>",
             "  <if test='category != null'>category = #{category},</if>",
             "</set>",
             "WHERE id = #{id}",
@@ -81,6 +81,6 @@ public interface ProductMapper {
     @Delete("DELETE FROM products WHERE id = #{id}")
     int deleteById(@Param("id") Long id);
 
-    @Update("UPDATE products SET cover_image_url = #{coverImageUrl} WHERE id = #{id}")
-    int updateCoverImageUrl(@Param("id") Long id, @Param("coverImageUrl") String coverImageUrl);
+    @Update("UPDATE products SET thumbnail_url = #{thumbnailUrl} WHERE id = #{id}")
+    int updateThumbnailUrl(@Param("id") Long id, @Param("thumbnailUrl") String thumbnailUrl);
 }

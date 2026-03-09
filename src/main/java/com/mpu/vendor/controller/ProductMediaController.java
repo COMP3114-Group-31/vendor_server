@@ -19,44 +19,46 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mpu.vendor.entity.ProductMedia;
-import com.mpu.vendor.service.ThumbnailService;
+import com.mpu.vendor.service.ProductMediaService;
 
 @RestController
 @RequestMapping({"/products/{productId}/images", "/products/{productId}/thumbnails"})
 @CrossOrigin(origins = "*")
-public class ThumbnailController {
+public class ProductMediaController {
 
-    private final ThumbnailService thumbnailService;
+    private final ProductMediaService productMediaService;
 
-    public ThumbnailController(ThumbnailService thumbnailService) {
-        this.thumbnailService = thumbnailService;
+    public ProductMediaController(ProductMediaService productMediaService) {
+        this.productMediaService = productMediaService;
     }
 
     @PostMapping("/cover")
-    public ResponseEntity<Map<String, Object>> uploadCover(@PathVariable Long productId,
-                                                           @RequestParam("file") MultipartFile file) {
-        String coverImageUrl = thumbnailService.uploadCover(productId, file);
+    public ResponseEntity<Map<String, Object>> uploadThumbnail(@PathVariable Long productId,
+                                                               @RequestParam("file") MultipartFile file) {
+        String thumbnailUrl = productMediaService.uploadThumbnail(productId, file);
 
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Cover image uploaded");
         map.put("product_id", productId);
-        map.put("cover_image_url", coverImageUrl);
-        map.put("main_thumbnail_url", coverImageUrl);
+        map.put("thumbnail_url", thumbnailUrl);
+        map.put("cover_image_url", thumbnailUrl);
+        map.put("main_thumbnail_url", thumbnailUrl);
         return ResponseEntity.status(HttpStatus.CREATED).body(map);
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> upload(@PathVariable Long productId,
-                                                       @RequestParam("files") MultipartFile[] files,
-                                                       @RequestParam(name = "set_first_as_main", defaultValue = "true") boolean setFirstAsMain) {
-        List<ProductMedia> list = thumbnailService.uploadThumbnails(productId, files, setFirstAsMain);
+    public ResponseEntity<Map<String, Object>> uploadMedia(@PathVariable Long productId,
+                                                           @RequestParam("files") MultipartFile[] files,
+                                                           @RequestParam(name = "set_first_as_main", defaultValue = "true") boolean setFirstAsMain) {
+        List<ProductMedia> list = productMediaService.uploadMedia(productId, files, setFirstAsMain);
 
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Images uploaded");
         map.put("product_id", productId);
-        String coverImageUrl = thumbnailService.getMainThumbnail(productId);
-        map.put("cover_image_url", coverImageUrl);
-        map.put("main_thumbnail_url", coverImageUrl);
+        String thumbnailUrl = productMediaService.getThumbnail(productId);
+        map.put("thumbnail_url", thumbnailUrl);
+        map.put("cover_image_url", thumbnailUrl);
+        map.put("main_thumbnail_url", thumbnailUrl);
         map.put("items", toItems(list));
         map.put("detail_images", toItems(list));
 
@@ -64,40 +66,43 @@ public class ThumbnailController {
     }
 
     @GetMapping
-    public Map<String, Object> list(@PathVariable Long productId) {
-        List<ProductMedia> list = thumbnailService.listThumbnails(productId);
+    public Map<String, Object> listMedia(@PathVariable Long productId) {
+        List<ProductMedia> list = productMediaService.listMedia(productId);
 
         Map<String, Object> map = new HashMap<>();
         map.put("product_id", productId);
-        String coverImageUrl = thumbnailService.getMainThumbnail(productId);
-        map.put("cover_image_url", coverImageUrl);
-        map.put("main_thumbnail_url", coverImageUrl);
+        String thumbnailUrl = productMediaService.getThumbnail(productId);
+        map.put("thumbnail_url", thumbnailUrl);
+        map.put("cover_image_url", thumbnailUrl);
+        map.put("main_thumbnail_url", thumbnailUrl);
         map.put("items", toItems(list));
         map.put("detail_images", toItems(list));
         return map;
     }
 
     @PatchMapping("/{mediaId}/main")
-    public Map<String, Object> setMain(@PathVariable Long productId,
-                                       @PathVariable Long mediaId) {
-        String url = thumbnailService.setMainThumbnail(productId, mediaId);
+    public Map<String, Object> setThumbnailFromMedia(@PathVariable Long productId,
+                                                     @PathVariable Long mediaId) {
+        String url = productMediaService.setThumbnailFromMedia(productId, mediaId);
 
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Cover image updated");
         map.put("product_id", productId);
+        map.put("thumbnail_url", url);
         map.put("cover_image_url", url);
         map.put("main_thumbnail_url", url);
         return map;
     }
 
     @DeleteMapping("/{mediaId}")
-    public Map<String, Object> delete(@PathVariable Long productId,
-                                      @PathVariable Long mediaId) {
-        String mainUrl = thumbnailService.deleteThumbnail(productId, mediaId);
+    public Map<String, Object> deleteMedia(@PathVariable Long productId,
+                                           @PathVariable Long mediaId) {
+        String mainUrl = productMediaService.deleteMedia(productId, mediaId);
 
         Map<String, Object> map = new HashMap<>();
         map.put("message", "Image deleted");
         map.put("product_id", productId);
+        map.put("thumbnail_url", mainUrl);
         map.put("cover_image_url", mainUrl);
         map.put("main_thumbnail_url", mainUrl);
         return map;

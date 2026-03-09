@@ -21,9 +21,9 @@ public class ProductCreateRequest {
 
     private BigDecimal price;
 
-    @JsonProperty("cover_image_url")
-    @JsonAlias("thumbnail_url")
-    private String coverImageUrl;
+    @JsonProperty("thumbnail_url")
+    @JsonAlias("cover_image_url")
+    private String thumbnailUrl;
 
     private String category;
 
@@ -67,12 +67,12 @@ public class ProductCreateRequest {
         this.price = price;
     }
 
-    public String getCoverImageUrl() {
-        return coverImageUrl;
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
     }
 
-    public void setCoverImageUrl(String coverImageUrl) {
-        this.coverImageUrl = coverImageUrl;
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public String getCategory() {

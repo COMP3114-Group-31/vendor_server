@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -28,8 +29,9 @@ public class ProductResponse {
 
     private BigDecimal price;
 
-    @JsonProperty("cover_image_url")
-    private String coverImageUrl;
+    @JsonProperty("thumbnail_url")
+    @JsonAlias("cover_image_url")
+    private String thumbnailUrl;
 
     private List<Map<String, Object>> media;
 
@@ -94,12 +96,12 @@ public class ProductResponse {
         this.price = price;
     }
 
-    public String getCoverImageUrl() {
-        return coverImageUrl;
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
     }
 
-    public void setCoverImageUrl(String coverImageUrl) {
-        this.coverImageUrl = coverImageUrl;
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public List<Map<String, Object>> getMedia() {
@@ -118,9 +120,9 @@ public class ProductResponse {
         this.detailImages = detailImages;
     }
 
-    @JsonProperty("thumbnail_url")
-    public String getThumbnailUrl() {
-        return coverImageUrl;
+    @JsonProperty("cover_image_url")
+    public String getCoverImageUrl() {
+        return thumbnailUrl;
     }
 
     public String getCategory() {

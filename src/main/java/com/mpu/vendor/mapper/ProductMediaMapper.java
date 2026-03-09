@@ -29,4 +29,7 @@ public interface ProductMediaMapper {
 
     @Delete("DELETE FROM product_media WHERE media_id = #{mediaId} AND product_id = #{productId}")
     int deleteByIdAndProductId(@Param("mediaId") Long mediaId, @Param("productId") Long productId);
+
+    @Delete("DELETE FROM product_media WHERE product_id = #{productId}")
+    int deleteByProductId(@Param("productId") Long productId);
 }

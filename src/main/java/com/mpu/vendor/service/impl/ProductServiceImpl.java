@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mpu.vendor.dto.ProductCreateRequest;
 import com.mpu.vendor.dto.ProductStatusRequest;
@@ -13,15 +14,18 @@ import com.mpu.vendor.entity.Product;
 import com.mpu.vendor.exception.BadRequestException;
 import com.mpu.vendor.exception.NotFoundException;
 import com.mpu.vendor.mapper.ProductMapper;
+import com.mpu.vendor.mapper.ProductMediaMapper;
 import com.mpu.vendor.service.ProductService;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
+    private final ProductMediaMapper productMediaMapper;
 
-    public ProductServiceImpl(ProductMapper productMapper) {
+    public ProductServiceImpl(ProductMapper productMapper, ProductMediaMapper productMediaMapper) {
         this.productMapper = productMapper;
+        this.productMediaMapper = productMediaMapper;
     }
 
     @Override
@@ -93,8 +97,8 @@ public class ProductServiceImpl implements ProductService {
         saveData.setDescriptionCn(request.getDescriptionCn().trim());
         saveData.setPrice(request.getPrice());
 
-        if (request.getCoverImageUrl() != null) {
-            saveData.setCoverImageUrl(request.getCoverImageUrl().trim());
+        if (request.getThumbnailUrl() != null) {
+            saveData.setThumbnailUrl(request.getThumbnailUrl().trim());
         }
         if (request.getCategory() != null && !request.getCategory().trim().isEmpty()) {
             saveData.setCategory(request.getCategory().trim().toLowerCase());
@@ -160,8 +164,8 @@ public class ProductServiceImpl implements ProductService {
         if (request.getPrice() != null) {
             updateData.setPrice(request.getPrice());
         }
-        if (request.getCoverImageUrl() != null) {
-            updateData.setCoverImageUrl(request.getCoverImageUrl().trim());
+        if (request.getThumbnailUrl() != null) {
+            updateData.setThumbnailUrl(request.getThumbnailUrl().trim());
         }
         if (request.getCategory() != null) {
             updateData.setCategory(request.getCategory().trim().toLowerCase());
@@ -198,11 +202,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
         Product dbData = productMapper.findById(id);
         if (dbData == null) {
             throw new NotFoundException("Product not found");
         }
+
+        productMediaMapper.deleteByProductId(id);
 
         int rows = productMapper.deleteById(id);
         if (rows != 1) {

@@ -168,13 +168,20 @@
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
                             <div style="flex: 1; min-width: 200px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">价格 (¥)</label>
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">价格 ($)</label>
                                 <input type="number" id="productPrice" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;" step="0.01" min="0" placeholder="0.00">
                             </div>
                             <div style="flex: 1; min-width: 200px;">
                                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">分类</label>
                                 <select id="productCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
                                     <option value="">选择分类</option><option value="phone">手机</option><option value="tablet">平板</option><option value="laptop">笔记本电脑</option><option value="accessory">配件</option><option value="other">其他</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50;">状态</label>
+                                <select id="productStatus" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                    <option value="active">启用</option>
+                                    <option value="inactive">停用</option>
                                 </select>
                             </div>
                         </div>
